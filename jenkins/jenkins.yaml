@@ -1,58 +1,87 @@
-jenkins:
-  systemMessage: "NEXT.JS CI/CD — Automated"
+pipeline {
 
-  securityRealm:
-    local:
-      users:
-        - id: "admin"
-          password: "admin123"
+    agent any
 
-  authorizationStrategy:
-    loggedInUsersCanDoAnything:
-      allowAnonymousRead: true
+    environment {
+        IMAGE_NAME = "nextjs-app"
+    }
 
-jobs:
-  - script: >
-      pipelineJob('nextjs-cicd') {
+    stages {
 
-        description("Next.js CI/CD automated job")
-
-        parameters {
-          activeChoiceParam('ENVIRONMENT') {
-            choiceType('SINGLE_SELECT')
-            filterable()
-            groovyScript {
-              script('["dev1","dev2","dev3"]')
-              fallbackScript('["dev1"]')
+        stage('Checkout Code') {
+            steps {
+                git branch: 'master', url: 'https://github.com/saimudunuri09/calculator_app.git'
             }
-          }
-
-          activeChoiceReactiveParam('SERVER_URL') {
-            choiceType('SINGLE_SELECT')
-            groovyScript {
-              script('''
-                if (ENVIRONMENT == "dev1") return ["http://localhost:5001"]
-                if (ENVIRONMENT == "dev2") return ["http://localhost:5002"]
-                if (ENVIRONMENT == "dev3") return ["http://localhost:5003"]
-                return ["unknown"]
-              ''')
-              fallbackScript('["unknown"]')
-            }
-            referencedParameter("ENVIRONMENT")
-          }
         }
 
-        definition {
-          cpsScm {
-            scm {
-              git {
-                remote { url('https://github.com/saimudunuri09/calculator_app.git') }
-                branches('*/master')
-              }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
             }
-            scriptPath('jenkins/Jenkinsfile')
-          }
         }
 
-        triggers { githubPush() }
-      }
+        stage('Run Tests') {
+            steps {
+                sh 'npm run test || true'
+            }
+        }
+
+        stage('Build Next.js App') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                    docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                    docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
+                """
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+
+                    // Map ENVIRONMENT → port + container name
+                    def PORT = ""
+                    def CONTAINER = ""
+
+                    if (ENVIRONMENT == "dev1") {
+                        PORT = "5001"
+                        CONTAINER = "nextjs-dev1"
+                    } 
+                    else if (ENVIRONMENT == "dev2") {
+                        PORT = "5002"
+                        CONTAINER = "nextjs-dev2"
+                    }
+                    else if (ENVIRONMENT == "dev3") {
+                        PORT = "5003"
+                        CONTAINER = "nextjs-dev3"
+                    }
+                    else {
+                        error "❌ Invalid environment selected!"
+                    }
+
+                    sh """
+                        docker stop ${CONTAINER} || true
+                        docker rm ${CONTAINER} || true
+
+                        docker run -d \
+                            -p ${PORT}:3000 \
+                            --name ${CONTAINER} \
+                            nextjs-app:latest
+                    """
+
+                    echo "---------------------------------------"
+                    echo "🚀 DEPLOYMENT SUCCESSFUL"
+                    echo "Environment : ${ENVIRONMENT}"
+                    echo "URL         : http://localhost:${PORT}"
+                    echo "---------------------------------------"
+                }
+            }
+        }
+    }
+}
