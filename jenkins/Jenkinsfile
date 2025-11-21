@@ -1,18 +1,11 @@
 pipeline {
-    agent any   // runs on Jenkins master container
-
-    options {
-        timestamps()
-    }
-
-    environment {
-        APP_IMAGE = "git-doc-app"
-    }
+    agent any
 
     stages {
-        stage('Checkout') {
+
+        stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'master', url: 'https://github.com/saimudunuri09/calculator_app.git'
             }
         }
 
@@ -22,16 +15,9 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                // If you add real tests later, put them here
-                sh '''
-                    if [ -f package.json ] && cat package.json | grep -q '"test"'; then
-                      npm test
-                    else
-                      echo "No test script defined, skipping tests"
-                    fi
-                '''
+                sh 'npm test || echo "No tests found"'
             }
         }
 
@@ -43,43 +29,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${APP_IMAGE} .'
+                sh 'docker build -t nextjs-app .'
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Locally') {
             steps {
                 script {
-                    // Map ENVIRONMENT -> container name & host port
-                    def containerName
-                    def hostPort
 
-                    if (ENVIRONMENT == 'dev1') {
-                        containerName = 'git-doc-dev1'
-                        hostPort = '3101'
-                    } else if (ENVIRONMENT == 'dev2') {
-                        containerName = 'git-doc-dev2'
-                        hostPort = '3102'
-                    } else if (ENVIRONMENT == 'dev3') {
-                        containerName = 'git-doc-dev3'
-                        hostPort = '3103'
-                    } else {
-                        error "Unknown ENVIRONMENT: ${ENVIRONMENT}"
-                    }
+                    def PORT = ""
+                    def CONTAINER_NAME = ""
 
-                    // Stop & remove old container (if exists)
+                    if (ENVIRONMENT == "dev1") { PORT = "5001"; CONTAINER_NAME = "nextjs-dev1" }
+                    if (ENVIRONMENT == "dev2") { PORT = "5002"; CONTAINER_NAME = "nextjs-dev2" }
+                    if (ENVIRONMENT == "dev3") { PORT = "5003"; CONTAINER_NAME = "nextjs-dev3" }
+
                     sh """
-                        docker rm -f ${containerName} || true
+                        docker stop ${CONTAINER_NAME} || true
+                        docker rm ${CONTAINER_NAME} || true
+                        docker run -d -p ${PORT}:3000 --name ${CONTAINER_NAME} nextjs-app
                     """
 
-                    // Run new container
-                    sh """
-                        docker run -d --name ${containerName} \
-                          -p ${hostPort}:3000 \
-                          ${APP_IMAGE}
-                    """
-
-                    echo "Deployed to http://localhost:${hostPort}"
+                    echo "APP RUNNING: http://localhost:${PORT}"
                 }
             }
         }

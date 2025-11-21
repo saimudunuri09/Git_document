@@ -1,41 +1,44 @@
 jenkins:
-  systemMessage: "Git Documentation CI/CD — fully automated"
-  numExecutors: 2
+  systemMessage: "NEXT.JS CI/CD — Automated"
 
   securityRealm:
     local:
-      allowsSignup: false
       users:
         - id: "admin"
           password: "admin123"
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:
-      allowAnonymousRead: false
-
-unclassified:
-  location:
-    url: "http://localhost:8070/"
+      allowAnonymousRead: true
 
 jobs:
   - script: >
-      pipelineJob('git-doc-ci-cd') {
-        description('CI/CD for git-documentation Next.js app')
-        // Trigger from GitHub webhook (push)
-        triggers {
-          githubPush()
-        }
+      pipelineJob('nextjs-cicd') {
 
-        // Parameters – ONLY environment selector
+        description("Next.js CI/CD automated job")
+
         parameters {
           activeChoiceParam('ENVIRONMENT') {
-            description('Select environment to deploy')
             choiceType('SINGLE_SELECT')
+            filterable()
             groovyScript {
-              // NOTE: only returns choices, no URL/port logic here
-              script('["dev1", "dev2", "dev3"]')
+              script('["dev1","dev2","dev3"]')
               fallbackScript('["dev1"]')
             }
+          }
+
+          activeChoiceReactiveParam('SERVER_URL') {
+            choiceType('SINGLE_SELECT')
+            groovyScript {
+              script('''
+                if (ENVIRONMENT == "dev1") return ["http://localhost:5001"]
+                if (ENVIRONMENT == "dev2") return ["http://localhost:5002"]
+                if (ENVIRONMENT == "dev3") return ["http://localhost:5003"]
+                return ["unknown"]
+              ''')
+              fallbackScript('["unknown"]')
+            }
+            referencedParameter("ENVIRONMENT")
           }
         }
 
@@ -43,18 +46,13 @@ jobs:
           cpsScm {
             scm {
               git {
-                remote {
-                  // TODO: replace with your real repo URL if different
-                  url('https://github.com/saimudunuri09/Git_document.git')
-                }
+                remote { url('https://github.com/saimudunuri09/calculator_app.git') }
                 branches('*/master')
               }
             }
-            // Jenkinsfile lives inside jenkins/ folder in repo
             scriptPath('jenkins/Jenkinsfile')
           }
         }
-        triggers {
-          githubPush()
-        }
+
+        triggers { githubPush() }
       }
