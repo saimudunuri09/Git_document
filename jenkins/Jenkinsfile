@@ -1,0 +1,87 @@
+pipeline {
+    agent any   // runs on Jenkins master container
+
+    options {
+        timestamps()
+    }
+
+    environment {
+        APP_IMAGE = "git-doc-app"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                // If you add real tests later, put them here
+                sh '''
+                    if [ -f package.json ] && cat package.json | grep -q '"test"'; then
+                      npm test
+                    else
+                      echo "No test script defined, skipping tests"
+                    fi
+                '''
+            }
+        }
+
+        stage('Build Next.js App') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t ${APP_IMAGE} .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Map ENVIRONMENT -> container name & host port
+                    def containerName
+                    def hostPort
+
+                    if (ENVIRONMENT == 'dev1') {
+                        containerName = 'git-doc-dev1'
+                        hostPort = '3101'
+                    } else if (ENVIRONMENT == 'dev2') {
+                        containerName = 'git-doc-dev2'
+                        hostPort = '3102'
+                    } else if (ENVIRONMENT == 'dev3') {
+                        containerName = 'git-doc-dev3'
+                        hostPort = '3103'
+                    } else {
+                        error "Unknown ENVIRONMENT: ${ENVIRONMENT}"
+                    }
+
+                    // Stop & remove old container (if exists)
+                    sh """
+                        docker rm -f ${containerName} || true
+                    """
+
+                    // Run new container
+                    sh """
+                        docker run -d --name ${containerName} \
+                          -p ${hostPort}:3000 \
+                          ${APP_IMAGE}
+                    """
+
+                    echo "Deployed to http://localhost:${hostPort}"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,60 @@
+jenkins:
+  systemMessage: "Git Documentation CI/CD — fully automated"
+  numExecutors: 2
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin123"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8070/"
+
+jobs:
+  - script: >
+      pipelineJob('git-doc-ci-cd') {
+        description('CI/CD for git-documentation Next.js app')
+        // Trigger from GitHub webhook (push)
+        triggers {
+          githubPush()
+        }
+
+        // Parameters – ONLY environment selector
+        parameters {
+          activeChoiceParam('ENVIRONMENT') {
+            description('Select environment to deploy')
+            choiceType('SINGLE_SELECT')
+            groovyScript {
+              // NOTE: only returns choices, no URL/port logic here
+              script('["dev1", "dev2", "dev3"]')
+              fallbackScript('["dev1"]')
+            }
+          }
+        }
+
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  // TODO: replace with your real repo URL if different
+                  url('https://github.com/saimudunuri09/Git_document.git')
+                }
+                branches('*/master')
+              }
+            }
+            // Jenkinsfile lives inside jenkins/ folder in repo
+            scriptPath('jenkins/Jenkinsfile')
+          }
+        }
+        triggers {
+          githubPush()
+        }
+      }

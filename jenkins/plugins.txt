@@ -1,0 +1,21 @@
+# core
+workflow-aggregator
+git
+github
+github-branch-source
+cloudbees-folder
+
+# job as code
+job-dsl
+configuration-as-code
+
+# UI / logs
+pipeline-stage-view
+timestamper
+
+# Active Choices parameters
+uno-choice
+
+# misc useful
+credentials
+ssh-credentials
