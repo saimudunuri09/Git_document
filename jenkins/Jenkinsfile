@@ -1,10 +1,5 @@
 pipeline {
-
     agent any
-
-    environment {
-        IMAGE_NAME = "nextjs-app"
-    }
 
     stages {
 
@@ -22,7 +17,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                sh 'npm run test || true'   // skip if no tests
+                sh 'npm test || echo "No tests found"'
             }
         }
 
@@ -34,35 +29,30 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
-                    docker tag ${IMAGE_NAME}:${BUILD_NUMBER} ${IMAGE_NAME}:latest
-                """
+                sh 'docker build -t nextjs-app .'
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Locally') {
             steps {
                 script {
 
-                    sh """
-                        docker stop nextjs-container || true
-                        docker rm nextjs-container || true
+                    def PORT = ""
+                    def CONTAINER_NAME = ""
 
-                        docker run -d \
-                            -p 3000:3000 \
-                            --name nextjs-container \
-                            nextjs-app:latest
+                    if (ENVIRONMENT == "dev1") { PORT = "5001"; CONTAINER_NAME = "nextjs-dev1" }
+                    if (ENVIRONMENT == "dev2") { PORT = "5002"; CONTAINER_NAME = "nextjs-dev2" }
+                    if (ENVIRONMENT == "dev3") { PORT = "5003"; CONTAINER_NAME = "nextjs-dev3" }
+
+                    sh """
+                        docker stop ${CONTAINER_NAME} || true
+                        docker rm ${CONTAINER_NAME} || true
+                        docker run -d -p ${PORT}:3000 --name ${CONTAINER_NAME} nextjs-app
                     """
+
+                    echo "APP RUNNING: http://localhost:${PORT}"
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo "🚀 Deployment Successful!"
-            echo "App running at: http://localhost:3000"
         }
     }
 }
