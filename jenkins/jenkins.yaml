@@ -1,5 +1,5 @@
 jenkins:
-  systemMessage: "NEXT.JS CI/CD — Automated"
+  systemMessage: "NEXT.JS CI/CD - Automated"
 
   securityRealm:
     local:
