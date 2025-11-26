@@ -1,0 +1,131 @@
+
+---
+
+
+
+```mdx
+# 🔀 Pull Request Workflow (GitHub, GitLab, Bitbucket)
+
+Pull Requests (PRs) are the **core of teamwork**, code review, CI/CD, and approvals.
+
+This file includes every real scenario.
+
+---
+
+# 🧩 1. Creating a PR (Standard Workflow)
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/new-ui
+Make changes →
+
+git add .
+git commit -m "feat: new dashboard UI"
+git push -u origin feature/new-ui
+
+
+On GitHub → Create Pull Request.
+
+🧩 2. Updating PR After Review Comments
+
+Reviewer requests changes →
+Make changes → commit → push:
+
+git add .
+git commit -m "fix: update UI spacing"
+git push
+
+
+PR updates automatically.
+
+🧩 3. Keeping PR Updated With Latest Main
+Option 1 – Merge main into feature branch
+git checkout feature/new-ui
+git pull origin main
+git push
+
+
+Creates a merge commit.
+
+Option 2 – Rebase (Cleaner History)
+git checkout feature/new-ui
+git fetch origin
+git rebase origin/main
+git push --force-with-lease
+
+
+Rebase PR branches to keep a linear history.
+
+🧩 4. Squash Commits Before PR Merge
+git rebase -i HEAD~5
+# change "pick" → "squash"
+git push --force-with-lease
+
+🧩 5. Review Someone Else’s PR Locally
+git fetch origin pull/123/head:pr-123
+git checkout pr-123
+
+
+After testing:
+
+git checkout main
+git branch -D pr-123
+
+🧩 6. Collaborate on Someone’s PR
+git fetch origin
+git checkout feature/their-branch
+
+git add .
+git commit -m "refactor: improve validation"
+git push
+
+🧩 7. Fixing PR Merge Conflicts
+git checkout feature/new-ui
+git fetch origin
+git merge origin/main
+# resolve conflicts
+git add .
+git commit -m "Resolve merge conflicts"
+git push
+
+🧩 8. Cancel or Close PR
+git checkout main
+git branch -d feature/new-ui
+git push origin --delete feature/new-ui
+
+🧾 9. Pull Request Template (Copy & Paste)
+## 🔍 What Changed?
+Describe the feature/fix.
+
+## 🧪 Testing Steps
+- [ ] Unit tests passed
+- [ ] Manual testing done
+
+## 🧩 Issue Link
+Closes #123
+
+## 📸 Screenshots
+(If UI changes)
+
+## ✔ Checklist
+- [ ] Code linted
+- [ ] Documentation updated
+- [ ] No dead code
+- [ ] PR is small and focused
+
+🛡 10. PR Best Practices
+
+Keep PRs small
+
+Use clear commit messages
+
+Respond to review comments quickly
+
+Avoid large “mega PRs”
+
+Update PR regularly
+
+Test before pushing
+
+Avoid mixing multiple features in one PR

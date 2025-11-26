@@ -1,0 +1,91 @@
+
+---
+
+
+
+```mdx
+# 🏗 Jenkins CLI & API Automation Guide
+
+This guide covers **Linux + macOS + Windows** methods for accessing Jenkins job data using only:
+- CLI
+- curl
+- API Tokens
+- No Jenkins UI
+
+---
+
+# 🔐 1. Authenticate
+
+```bash
+USER="admin"
+TOKEN="YOUR_API_TOKEN"
+JENKINS_URL="http://<your-jenkins-host>:<port>"  # E.g., http://localhost:8090 or https://ci.example.com
+Windows PowerShell:
+
+$USER="admin"
+$TOKEN="YOUR_API_TOKEN"
+$JENKINS_URL="http://<your-jenkins-host>:<port>"  # E.g., http://localhost:8090 or https://ci.example.com
+
+📌 2. List All Jenkins Jobs
+
+Linux/macOS:
+
+curl -s -u "$USER:$TOKEN" "$JENKINS_URL/api/json?tree=jobs[name]"
+
+
+Windows:
+
+curl.exe -s -u "$USER:$TOKEN" "$JENKINS_URL/api/json?tree=jobs[name]"
+
+
+Extract only job names:
+
+grep -oP '"name":"\K[^"]+'
+
+🔧 3. Get Last Build Number
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/MYJOB/lastBuild/api/json?tree=number"
+
+🧬 4. Get Commit ID From Last Build
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/MYJOB/lastBuild/api/json?tree=actions[lastBuiltRevision[SHA1]]"
+
+
+Extract commit only:
+
+grep -oP '"SHA1":"\K[^"]+'
+
+🟩 5. Get Build Status
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/MYJOB/lastBuild/api/json?tree=result"
+
+🚀 6. Combined: Build Number + Commit + Status
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/MYJOB/lastBuild/api/json?tree=number,result,actions[lastBuiltRevision[SHA1]]"
+
+🔄 7. Loop Through All Jobs (Linux)
+for job in $(curl -s -u "$USER:$TOKEN" "$JENKINS_URL/api/json?tree=jobs[name]" \
+ | grep -oP '"name":"\K[^"]+'); do
+
+  echo "JOB: $job"
+
+  RESP=$(curl -s -u "$USER:$TOKEN" \
+  "$JENKINS_URL/job/$job/lastBuild/api/json?tree=number,actions[lastBuiltRevision[SHA1]]")
+
+  BUILD=$(echo "$RESP" | grep -oP '"number":\K[0-9]+')
+  COMMIT=$(echo "$RESP" | grep -oP '"SHA1":"\K[^"]+' || echo "No Commit")
+
+  echo "Build: $BUILD"
+  echo "Commit: $COMMIT"
+  echo
+done
+
+💡 Notes
+
+Works with Jenkins installed locally or on Docker
+
+Does not require Jenkins CLI .jar
+
+API tokens are safer than passwords
+
+Works on Windows, Linux, Mac

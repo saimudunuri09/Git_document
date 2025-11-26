@@ -1,0 +1,147 @@
+# 🔄 Daily Git Workflow (Real-World Scenarios)
+
+This section covers **everything a developer does daily** using Git.  
+These workflows occur **every single day** in real companies like Amazon, Google, Uber, Deloitte, Netflix, Infosys, Cognizant, etc.
+
+---
+
+# 🧩 1. Starting Your Workday
+
+Always sync your local repo with the latest main branch.
+
+## 🟦 Windows / 🟢 Linux / 🟣 macOS
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/my-task
+NEVER start your work without pulling.
+You will get conflicts later if you don’t.
+
+🧩 2. Checking What Changed
+git status
+git diff
+
+Use git diff for:
+
+Seeing what you modified
+
+Checking before committing
+
+Understanding conflicts
+
+🧩 3. Staging Your Changes
+
+Stage everything:
+
+git add .
+
+
+Stage single file:
+
+git add file.txt
+
+
+Stage by pattern:
+
+git add *.js
+
+🧩 4. Writing Good Commit Messages
+
+Good messages make teamwork 10x easier.
+
+Examples:
+git commit -m "feat: add login page UI"
+git commit -m "fix: resolve null pointer crash"
+git commit -m "docs: update README"
+git commit -m "refactor: cleanup validation logic"
+
+
+Never write commit messages like:
+
+“fixes”
+
+“done”
+
+“update”
+
+“work”
+These make your repo useless in enterprise.
+
+🧩 5. Multi-Line Commit Messages
+git commit -m "Add payment API" -m "- Add validations
+- Add Stripe integration
+- Add database logs"
+
+🧩 6. Undoing Mistakes (SAFE)
+
+Undo last commit but keep changes:
+
+git reset --soft HEAD~1
+
+
+Undo staged changes:
+
+git restore --staged file.txt
+
+
+Undo file in working directory:
+
+git restore file.txt
+
+🧩 7. Stashing Work (Very Important)
+
+Used when switching branches without committing.
+
+git stash
+git stash save "WIP: payment feature"
+git checkout main
+
+
+Apply stash:
+
+git stash pop
+
+
+List stashes:
+
+git stash list
+
+🧩 8. Viewing Commit History
+git log
+git log --oneline
+git log --graph --oneline
+git log --author="Sai"
+git log --since="2 days ago"
+
+🧩 9. Handling Untracked Files
+
+See untracked:
+
+git status --short
+
+
+Remove untracked:
+
+git clean -f
+
+
+Remove directories:
+
+git clean -fd
+
+🧩 10. Daily Checklist
+
+ Pull main
+
+ Create feature branch
+
+ Write clear commits
+
+ Push regularly
+
+ Stash when needed
+
+ Check logs
+
+ Keep branch updated

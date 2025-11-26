@@ -1,0 +1,156 @@
+
+---
+
+
+
+```mdx
+# 🌱 Branching Strategies & Real-World Scenarios
+
+Branching is the **heart** of enterprise Git workflow.  
+Every company uses branches differently, but common patterns exist.
+
+This guide covers **all scenarios**.
+
+---
+
+# 🧬 Branch Types Used in Industry
+
+### ✔ `main`  
+Production-ready code  
+Deployable at all times
+
+### ✔ `develop`  
+Integration branch (Git Flow teams)
+
+### ✔ `feature/*`  
+For new features
+
+### ✔ `bugfix/*`  
+For non-critical bugs
+
+### ✔ `hotfix/*`  
+For urgent production fixes
+
+### ✔ `release/*`  
+Used for preparing releases
+
+---
+
+# 🧩 1. Create New Feature Branch
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/login-system
+🧩 2. Create a Branch from Specific Commit
+
+Useful in debugging and recreation.
+
+git checkout -b test-branch abc1234
+
+🧩 3. Rename a Branch
+
+While on branch:
+
+git branch -m new-name
+
+
+Rename another branch:
+
+git branch -m old-name new-name
+
+
+Update remote name:
+
+git push origin :old-name new-name
+git push origin -u new-name
+
+🧩 4. Delete Branches
+
+Local delete:
+
+git branch -d feature/login
+
+
+Force delete:
+
+git branch -D feature/login
+
+
+Remote delete:
+
+git push origin --delete feature/login
+
+🧩 5. Track Remote Branch (MOST COMMON)
+git checkout --track origin/feature/login
+
+🧩 6. Compare Branches
+git diff main..feature/login
+
+
+Compact commit list:
+
+git log --oneline main..feature/login
+
+🧩 7. Git Flow Workflow (Used in Large Companies)
+main
+develop
+feature/*
+release/*
+hotfix/*
+
+
+Example:
+
+git checkout develop
+git checkout -b feature/user-profile
+
+
+Finish feature:
+
+git checkout develop
+git merge feature/user-profile
+
+🧩 8. GitHub Flow (Used in Startups)
+
+Simplest model:
+
+main
+feature/*
+
+
+Steps:
+
+git checkout main
+git pull origin main
+git checkout -b feature/add-search
+git push -u origin feature/add-search
+
+
+Then create PR.
+
+🧩 9. Trunk-Based Development (Used by Google, Meta)
+
+Rules:
+
+Work on VERY SHORT branches
+
+Merge every few hours
+
+Feature flags required
+
+🧩 10. Branching Best Practices
+
+Always branch from latest main
+
+Use meaningful names
+
+Delete merged branches
+
+Push often
+
+Don't keep long-running branches
+
+Prefer feature flags for incomplete features
+
+Rebase often to keep clean history

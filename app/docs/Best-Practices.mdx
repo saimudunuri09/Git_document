@@ -1,0 +1,231 @@
+# 🏆 Git Best Practices (Industry Standard)
+
+These are **enterprise-grade practices** used by companies like Amazon, Microsoft, Meta, Tesla, Netflix, and Salesforce.
+
+Keeping your Git clean = fewer bugs + easier reviews + faster deployments.
+
+---
+
+# 🧱 1. Commit Best Practices
+
+### ✔ Write meaningful commit messages
+
+Good:
+
+```bash
+git commit -m "feat(auth): add JWT-based login"
+git commit -m "fix(cart): resolve checkout crash issue"
+git commit -m "docs(api): update rate limit examples"
+Bad:
+
+git commit -m "update"
+git commit -m "fix"
+git commit -m "changes"
+
+✔ Keep commits small & focused
+
+Each commit should contain one logical change, not everything.
+
+📛 2. Branch Naming Conventions
+
+Use prefix + description format.
+
+Examples:
+
+feature/user-authentication
+feature/add-payment-gateway
+bugfix/order-total-calculation
+hotfix/production-crash
+release/v2.3.1
+docs/update-readme
+refactor/improve-db-performance
+test/add-pipeline-tests
+
+📁 3. .gitignore Best Practices
+
+Example:
+
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.log
+
+# Env
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+🔀 4. Pull Request Best Practices
+
+Every PR should include:
+
+Small & focused changes
+
+Clean commit history
+
+Clear title
+
+Description of what changed
+
+Tests included
+
+No console.logs
+
+No commented-out code
+
+Linked issues
+
+Screenshots (for UI changes)
+
+📌 PR Template
+## What
+Explain what this PR does.
+
+## Why
+Explain why this change is needed.
+
+## How
+Explain your approach or logic.
+
+## Testing
+- [ ] Unit tests pass
+- [ ] Manual testing done
+
+🧩 5. Commit Message Format (Conventional Commits)
+<type>(<scope>): <subject>
+
+
+Types:
+
+feat → New feature
+
+fix → Bug fix
+
+docs → Documentation
+
+style → Formatting changes
+
+refactor → Code restructure
+
+test → Adding tests
+
+chore → Maintenance tasks
+
+Example:
+
+feat(auth): implement OTP-based login
+
+📐 6. Repository Structure (Recommended)
+project/
+├── src/
+├── tests/
+├── docs/
+├── .github/workflows/  
+├── .gitignore
+├── README.md
+├── CONTRIBUTING.md
+└── LICENSE
+
+🔒 7. Security Best Practices
+
+❌ Never commit:
+
+API keys / tokens
+
+AWS access keys
+
+Database passwords
+
+Private keys
+
+.env files
+
+Personal data
+
+✔ Always use:
+
+.env + .gitignore
+
+Secret manager (AWS/GCP/Azure)
+
+GitHub Actions encrypted secrets
+
+🧪 8. Code Review Checklist
+
+Before requesting review:
+
+ Code compiles
+
+ Tests pass
+
+ No dead code
+
+ No console.logs
+
+ Feature works end-to-end
+
+ Documentation updated
+
+ Branch is up-to-date
+
+ No sensitive data
+
+🚀 9. Workflow Best Practices
+
+Daily rules:
+
+Pull before starting work
+
+Create a feature branch
+
+Make small commits
+
+Push frequently
+
+Create PR when done
+
+Delete branch after merge
+
+💾 10. Performance Tips
+git gc --auto
+git remote prune origin
+git count-objects -vH
+
+❌ 11. Common Mistakes to Avoid
+
+Never:
+
+Commit directly to main
+
+Force push to main
+
+Keep large binary files in repo
+
+Keep long-running branches
+
+Merge without review
+
+Make huge PRs (>200 lines)
+
+Push incomplete work without feature flags
+
+✔ Professional Checklist
+
+ Structured repository
+
+ Small & clean commits
+
+ Standardized naming
+
+ Secure secrets
+
+ Clear PR workflow

@@ -1,0 +1,121 @@
+
+---
+
+
+
+```mdx
+# 🚨 Git Emergency Scenarios (Critical Fixes)
+
+These scenarios happen **every day** in real work.  
+This file gives step-by-step solutions to the worst Git disasters.
+
+---
+
+# 🔥 1. Committed to the WRONG BRANCH
+
+```bash
+git log   # check commit
+git branch correct-branch
+git reset --hard HEAD~1
+git checkout correct-branch
+🔥 2. Pushed Wrong Commit to Remote
+Safe solution (REVERT):
+git revert HEAD
+git push origin main
+
+Risky (RESET):
+git reset --hard HEAD~1
+git push --force-with-lease
+
+🔥 3. Deleted a Branch by Mistake
+
+Find commit:
+
+git reflog
+
+
+Restore:
+
+git checkout -b recovered-branch abc1234
+
+🔥 4. Lost Commits After Reset
+git reflog
+git checkout abc1234
+git branch restore-me
+
+
+reflog is your lifesaver. It remembers EVERYTHING.
+
+🔥 5. Merge Conflict Gone Wrong
+
+Abort:
+
+git merge --abort
+
+
+Reset:
+
+git fetch origin
+git reset --hard origin/main
+
+🔥 6. Accidentally Added Sensitive Data
+
+Remove from last commit:
+
+git rm --cached password.txt
+git commit --amend --no-edit
+git push --force-with-lease
+
+
+Remove from history (permanent):
+
+bfg --delete-files password.txt
+
+🔥 7. HEAD Detached
+git checkout -b safe-branch
+
+
+Return safely:
+
+git checkout main
+
+🔥 8. Accidentally Reset Too Much
+git reflog
+git checkout HEAD@{1}
+
+🔥 9. Large File Pushed to GitHub (Over 100MB)
+git filter-branch --tree-filter 'rm -f large.zip' -- --all
+git push --force
+
+🔥 10. Undo Last Commit But Keep Changes
+git reset --soft HEAD~1
+
+🔥 11. Undo Commit Completely
+git reset --hard HEAD~1
+
+🔥 12. Clean Corrupted Repository
+git fsck --full
+
+
+Worst case:
+
+rm -rf .git
+git init
+
+🛡 Prevention Checklist
+
+ Never force-push to main
+
+ Always create feature branches
+
+ Pull before work
+
+ Commit frequently
+
+ Push often
+
+ Use .gitignore
+
+ Backup important branches
+
+ Use PR reviews

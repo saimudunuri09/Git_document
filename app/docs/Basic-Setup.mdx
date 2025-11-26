@@ -1,0 +1,128 @@
+# ⚙️ Git Basic Setup (Windows + Linux + macOS)
+
+Correct Git setup is the foundation of all workflows.  
+If you set this wrong, you will get errors later in merging, pulling, pushing, etc.
+
+---
+
+# 🧩 1. Install Git
+
+## 🟦 Windows
+
+Download & install:  
+https://git-scm.com/download/win
+
+Verify:
+
+```powershell
+git --version
+🟢 Linux (Ubuntu / Debian)
+sudo apt update
+sudo apt install git -y
+git --version
+
+🟣 macOS
+brew install git
+git --version
+
+🧭 2. Configure Identity (MOST IMPORTANT)
+
+These details appear in every commit.
+
+git config --global user.name "Your Full Name"
+git config --global user.email "your.email@example.com"
+
+
+Wrong email = GitHub will NEVER link commits to your account.
+
+📝 3. Set Default Branch Name (main instead of master)
+git config --global init.defaultBranch main
+
+🔄 4. Configure Line Endings (CRLF / LF Fix)
+🟦 Windows
+git config --global core.autocrlf true
+
+🟢 Linux / 🟣 macOS
+git config --global core.autocrlf input
+
+
+This prevents “whole file modified” issues.
+
+🖥️ 5. Set Default Editor
+VS Code
+git config --global core.editor "code --wait"
+
+Vim
+git config --global core.editor "vim"
+
+🔐 6. SSH Key Setup
+6.1 Generate SSH key
+Windows (Git Bash):
+ssh-keygen -t ed25519 -C "your.email@example.com"
+
+Linux/macOS:
+ssh-keygen -t ed25519 -C "your.email@example.com"
+
+6.2 Start SSH agent
+Windows:
+eval $(ssh-agent -s)
+
+Linux/macOS:
+eval "$(ssh-agent -s)"
+
+6.3 Add key
+ssh-add ~/.ssh/id_ed25519
+
+6.4 Copy public key
+cat ~/.ssh/id_ed25519.pub
+
+
+Add key to GitHub → Settings → SSH Keys.
+
+🗃️ 7. Verify All Settings
+git config --list
+
+
+View specific:
+
+git config user.name
+git config user.email
+
+🧪 8. Configure Credential Helper
+Windows
+git config --global credential.helper wincred
+
+Linux/macOS
+git config --global credential.helper cache
+
+📄 9. Create a Robust .gitignore Template
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+🧩 10. Checklist Before Using Git
+
+ Name + Email configured
+
+ SSH key set
+
+ Default branch set
+
+ .gitignore created
+
+ Editor configured

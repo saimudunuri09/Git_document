@@ -1,0 +1,131 @@
+---
+
+
+```mdx
+# 🛠 Git Troubleshooting (Fix Any Git Problem)
+
+This file contains **ALL major Git problems** and solutions.
+
+---
+
+# 🚫 1. “Permission denied (publickey)”
+
+Fix SSH:
+
+```bash
+ssh -T git@github.com
+ssh-keygen -t ed25519
+ssh-add ~/.ssh/id_ed25519
+
+❓ 2. “Not a git repository”
+git init
+cd correct/project/path
+
+⛔ 3. “Your branch is behind”
+git pull origin main
+
+
+Or:
+
+git pull --rebase origin main
+
+⚔ 4. Merge Conflicts
+
+Check conflicted files:
+
+git status
+
+
+Markers:
+
+<<<<<<< HEAD
+=======
+>>>>>>> branch
+
+
+Fix → stage:
+
+git add .
+git commit
+
+🤯 5. Detached HEAD
+git checkout -b recover-branch
+
+🧹 6. Large File Issues
+git lfs install
+git lfs track "*.zip"
+
+
+Or remove from history:
+
+git filter-branch --tree-filter 'rm -f file.zip' HEAD
+
+🔄 7. “Updates were rejected”
+git pull origin main
+git push
+
+
+Or:
+
+git push --force-with-lease
+
+📦 8. Cannot Switch Branch (Uncommitted Changes)
+git stash
+git checkout other-branch
+git stash pop
+
+🧍 9. Wrong Author
+
+Fix last commit:
+
+git commit --amend --author="Sai <email@example.com>" --no-edit
+
+🧽 10. Clean Untracked Files
+git clean -fd
+
+🔍 11. Find Lost Commits (Most Important)
+git reflog
+git checkout abc123
+
+🧩 12. Line Ending Problems
+
+Windows:
+
+git config --global core.autocrlf true
+
+
+Normalize:
+
+git add --renormalize .
+git commit -m "Normalize endings"
+
+❌ 13. Cannot Delete Branch
+
+Force delete:
+
+git branch -D branch-name
+
+
+Remote delete:
+
+git push origin --delete branch-name
+
+🔐 14. Constant Password Prompts
+
+Use SSH instead:
+
+git remote set-url origin git@github.com:user/repo.git
+
+✔ Troubleshooting Checklist
+
+ Use SSH
+
+ Use reflog for lost commits
+
+ Avoid force pushes
+
+ Normalize line endings
+
+ Use .gitignore
+
+ Pull before pushing

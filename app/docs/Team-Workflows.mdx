@@ -1,0 +1,167 @@
+
+---
+
+
+
+```mdx
+# 👥 Team Workflows (Enterprise Standards)
+
+This covers the **exact workflows** used in teams with multiple developers, CI/CD, protected branches, and release management.
+
+---
+
+# 🧩 1. Code Review Workflow
+
+Checkout PR locally:
+
+```bash
+git fetch origin pull/123/head:review-123
+git checkout review-123
+After review:
+
+git checkout main
+git branch -D review-123
+
+🛡 2. Protected Branches (GitHub, Azure, GitLab)
+
+Typical rules:
+
+Require PR reviews
+
+Require CI pipeline to pass
+
+Require branch to be up-to-date
+
+Restrict who can push
+
+Block force pushes
+
+Require signatures
+
+🧩 3. Git Flow Release Process
+git checkout develop
+git checkout -b release/1.2.0
+
+
+Prepare release → test → documentation → finalize.
+
+Merge into main:
+
+git checkout main
+git merge release/1.2.0
+git tag -a v1.2.0 -m "Release 1.2.0"
+
+
+Merge back:
+
+git checkout develop
+git merge release/1.2.0
+
+
+Delete:
+
+git branch -d release/1.2.0
+
+🔥 4. Hotfix Process (Production Bug)
+git checkout main
+git checkout -b hotfix/payment-failure
+
+
+Fix bug → commit → merge → tag → deploy.
+
+👨‍💻 5. Pair Programming Git Process
+
+Commit with co-author:
+
+git commit -m "feat: add search bar
+
+Co-authored-by: John <john@example.com>"
+
+🧩 6. Diverged Branches (Very Common)
+git pull --rebase origin feature/cart
+
+
+If merge commit required:
+
+git pull origin feature/cart
+
+🧩 7. Working on the Same Branch With Multiple Developers
+
+Rules:
+
+Always pull first
+
+Make small commits
+
+Rebase frequently
+
+Avoid force push
+
+Communicate
+
+Prefer feature flags
+
+Example:
+
+git pull origin feature/shared
+git add .
+git commit -m "Improve handler"
+git pull --rebase origin feature/shared
+git push
+
+🎌 8. Feature Flags (Enterprise)
+
+Example JavaScript:
+
+if (flags.newFeatureEnabled) {
+    showNewUI();
+} else {
+    showOldUI();
+}
+
+
+Companies merge incomplete features through feature flags — not long-lived branches.
+
+📝 9. Conventional Commits (Industry Standard)
+
+Examples:
+
+feat(login): add OAuth login
+fix(api): resolve timeout issue
+docs(readme): update instructions
+refactor(db): optimize queries
+test(order): add integration tests
+
+🧾 10. Standup Meeting Git Commands
+git log --oneline --author="Sai" --since="1 day ago"
+git branch --show-current
+git status
+
+🧩 11. Repository Structure Standards
+project/
+├── src/
+├── tests/
+├── docs/
+├── .github/workflows/
+├── .gitignore
+├── README.md
+├── CONTRIBUTING.md
+└── LICENSE
+
+✔ Team Rules Checklist
+
+ No direct main pushes
+
+ Small PRs
+
+ Delete merged branches
+
+ Use feature flags
+
+ Enforce reviews
+
+ Automated CI/CD
+
+ Rebase before PR merge
+
+

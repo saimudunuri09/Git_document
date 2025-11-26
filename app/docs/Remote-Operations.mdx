@@ -1,0 +1,97 @@
+# 🌐 Remote Operations (Push, Pull, Fetch, Upstream)
+
+Remote operations are the **backbone of team collaboration**.  
+This file explains every real-world scenario involving remotes.
+
+---
+
+# 🔌 1. Connecting Local Repo to Remote
+
+```bash
+git remote add origin https://github.com/user/repo.git
+git branch -M main
+git push -u origin main
+📡 2. View Remote URLs
+git remote -v
+
+
+Output example:
+
+origin  https://github.com/user/repo.git (fetch)
+origin  https://github.com/user/repo.git (push)
+
+🛠 3. Change Remote URL (HTTPS → SSH)
+git remote set-url origin git@github.com:user/repo.git
+
+🔄 4. Pushing Code
+First push:
+git push -u origin feature/login
+
+Regular pushes:
+git push
+
+⚠️ 5. Force Push (Handle With Care)
+git push --force
+
+
+Safer version:
+
+git push --force-with-lease
+
+
+NEVER use --force on main or shared branches.
+It rewrites history and can destroy teammates’ work.
+
+📥 6. Pulling Changes (Fetch + Merge)
+git pull origin main
+
+Pull with rebase:
+git pull --rebase origin main
+
+🔍 7. Fetching Without Merging
+git fetch origin
+git diff main origin/main
+git log origin/main
+
+🌱 8. Working With Multiple Remotes (Enterprise)
+
+Example:
+
+git remote add origin https://github.com/user/repo.git
+git remote add upstream https://github.com/company/repo.git
+
+
+Fetch upstream:
+
+git fetch upstream
+git merge upstream/main
+
+
+Remove a remote:
+
+git remote remove upstream
+
+🔁 9. Syncing Your Fork (GitHub Fork Workflow)
+git checkout main
+git fetch upstream
+git merge upstream/main
+git push origin main
+
+🎯 10. Push All Branches
+git push --all origin
+
+🧹 11. Prune Deleted Remote Branches
+git fetch --prune
+git remote prune origin
+
+🏁 12. Checklist
+
+ Correct remote URL
+
+ Push with correct remote
+
+ Use --force-with-lease when needed
+
+ Sync fork regularly
+
+ Prune deleted branches

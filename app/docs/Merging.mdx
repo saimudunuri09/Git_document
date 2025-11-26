@@ -1,0 +1,114 @@
+
+---
+
+
+```mdx
+# 🔗 Merging & Conflict Resolution (Real Industry Scenarios)
+
+This file covers **every merging scenario** used by professional developers.
+
+---
+
+# 🧩 1. Simple Merge (Fast-Forward)
+
+```bash
+git checkout main
+git pull origin main
+git merge feature/login
+git push origin main
+🧩 2. Merge with a Commit (No Fast Forward)
+
+Used when you want history.
+
+git merge --no-ff feature/login
+
+🧩 3. Squash Merge
+
+Used to compress multiple commits into one.
+
+git merge --squash feature/login
+git commit -m "Add login feature"
+
+🧩 4. Resolving Merge Conflicts
+
+Conflict markers appear:
+
+<<<<<<< HEAD
+Your branch content
+=======
+Their branch content
+>>>>>>> feature/login
+
+
+Solve by editing file manually.
+
+Then:
+
+git add file.txt
+git commit -m "Resolve merge conflict"
+
+
+Abort merge:
+
+git merge --abort
+
+🧩 5. Using VS Code Merge Tool
+git mergetool
+
+
+Configure:
+
+git config --global merge.tool vscode
+git config --global mergetool.vscode.cmd "code --wait $MERGED"
+
+🧩 6. Cherry Pick Commits
+git cherry-pick abc1234
+
+🧩 7. Rebase Instead of Merge (Cleaner)
+git checkout feature/login
+git rebase main
+
+
+Fix conflicts:
+
+git add .
+git rebase --continue
+
+
+Abort:
+
+git rebase --abort
+
+🧩 8. Merge Strategies
+Accept incoming:
+git merge -X theirs feature/login
+
+Accept current:
+git merge -X ours feature/login
+
+🧩 9. Common Real World Merge Problems
+❌ "Your branch has diverged"
+
+Fix:
+
+git pull --rebase origin main
+
+❌ "Refusing to merge unrelated histories"
+
+Fix:
+
+git pull origin main --allow-unrelated-histories
+
+🧩 10. Merge Best Practices
+
+Pull latest main before merging
+
+Resolve conflicts locally
+
+Never commit conflict markers
+
+Prefer PR-based merging
+
+Use squash merge for long feature branches
+
+NEVER force push to main

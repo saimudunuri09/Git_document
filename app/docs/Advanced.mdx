@@ -1,0 +1,179 @@
+# 🧠 Advanced Git Scenarios (Enterprise Level)
+
+
+
+---
+
+# 🔍 1. Git Bisect (Find the commit that broke everything)
+
+Used when:
+- Code was working before
+- Somewhere between commits it broke
+- You don’t know which commit caused it
+
+Start:
+
+```bash
+git bisect start
+git bisect bad
+git bisect good abc1234
+Then Git checks out the middle commit.
+
+Test → If working:
+
+git bisect good
+
+
+If broken:
+
+git bisect bad
+
+
+Finish:
+
+git bisect reset
+
+
+This is one of the strongest debugging tools in Git.
+
+🔗 2. Git Hooks (Automation)
+
+Hooks run automatically during Git operations.
+
+Example: Pre-commit Hook
+
+Create:
+
+.git/hooks/pre-commit
+
+
+Add:
+
+#!/bin/sh
+npm run lint
+npm test
+
+
+Make it executable:
+
+chmod +x .git/hooks/pre-commit
+
+📦 3. Submodules (Include another repo inside your repo)
+
+Add submodule:
+
+git submodule add https://github.com/user/lib.git libs/mylib
+
+
+Clone repo with submodules:
+
+git clone --recursive https://github.com/user/repo.git
+
+
+Update submodules:
+
+git submodule update --init --recursive
+git submodule update --remote
+
+🛠 4. Git Worktrees
+
+Allows multiple branches checked out at same time.
+
+git worktree add ../hotfix hotfix/urgent-fix
+git worktree list
+git worktree remove ../hotfix
+
+🧹 5. Clean Untracked Files
+
+Dry-run:
+
+git clean -n
+
+
+Delete:
+
+git clean -f
+git clean -fd
+
+📂 6. Sparse Checkout (Huge repos)
+
+Useful for monorepos.
+
+git clone --filter=blob:none --sparse https://github.com/user/repo.git
+cd repo
+git sparse-checkout init --cone
+git sparse-checkout set src/docs
+
+🏋 7. Shallow Clone (Fast)
+git clone --depth 1 https://github.com/user/repo.git
+
+
+Fetch full history later:
+
+git fetch --unshallow
+
+⚙ 8. Git Attributes
+
+Used for:
+
+Binary files
+
+Custom EOL
+
+Linguist classification
+
+Example .gitattributes:
+
+*.jpg binary
+*.png binary
+*.md text
+*.js text eol=lf
+*.sql linguist-detectable=true
+
+⏱ 9. Performance Optimization
+git gc --aggressive
+git prune
+git count-objects -vH
+
+🎨 10. Create Powerful Git Aliases
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.last "log -1 HEAD"
+git config --global alias.visual "log --graph --oneline --all"
+
+📌 11. Patch Files
+
+Create patch:
+
+git diff > fix.patch
+
+
+Apply patch:
+
+git apply fix.patch
+
+
+Or commit:
+
+git am < fix.patch
+
+🧪 12. Blame (Find who changed a line)
+git blame file.txt
+git blame -L 10,20 file.txt
+
+🏗 13. Archive Project
+git archive --format=zip HEAD > project.zip
+
+⭐ Checklist
+
+ Understand bisect
+
+ Use hooks
+
+ Use worktrees for hotfixes
+
+ Use shallow clones for large repos
+
+ Optimize repository occasionally
