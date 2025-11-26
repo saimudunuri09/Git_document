@@ -1,3 +1,5 @@
-@import "tailwindcss";
-
-@source "./app/**/*.{js,jsx,ts,tsx,mdx}";
+module.exports = {
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
+};
