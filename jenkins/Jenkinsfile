@@ -1,7 +1,21 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev1', 'dev2', 'dev3'],
+            description: 'Choose which environment to deploy'
+        )
+    }
+
     stages {
+
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()           // 🔥 IMPORTANT — removes old files that break build
+            }
+        }
 
         stage('Checkout Code') {
             steps {
@@ -40,9 +54,9 @@ pipeline {
                     def PORT = ""
                     def CONTAINER_NAME = ""
 
-                    if (ENVIRONMENT == "dev1") { PORT = "5001"; CONTAINER_NAME = "nextjs-dev1" }
-                    if (ENVIRONMENT == "dev2") { PORT = "5002"; CONTAINER_NAME = "nextjs-dev2" }
-                    if (ENVIRONMENT == "dev3") { PORT = "5003"; CONTAINER_NAME = "nextjs-dev3" }
+                    if (params.ENVIRONMENT == "dev1") { PORT = "5001"; CONTAINER_NAME = "nextjs-dev1" }
+                    if (params.ENVIRONMENT == "dev2") { PORT = "5002"; CONTAINER_NAME = "nextjs-dev2" }
+                    if (params.ENVIRONMENT == "dev3") { PORT = "5003"; CONTAINER_NAME = "nextjs-dev3" }
 
                     sh """
                         docker stop ${CONTAINER_NAME} || true
