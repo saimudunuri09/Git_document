@@ -1901,12 +1901,116 @@ git push backup --tags
 - Rewrite public history
 - Skip code review
 - Leave branches open indefinitely`
+    },
+    'jenkins-cli': {
+      title: 'Jenkins CLI Scenarios',
+      icon: Terminal,
+      content: `# Jenkins CLI & API Scenarios (Linux Only)
+
+This section explains how to get:
+- All Jenkins job names
+- Build number
+- Job ID
+- Commit ID
+- Build Status
+- Using Linux (curl) ONLY
+- Using Jenkins API Token
+
+---
+
+## 🔐 1. Authenticate Using API Token (Linux)
+\`\`\`bash
+USER="admin"
+TOKEN="YOUR_API_TOKEN"
+JENKINS_URL="http://localhost:8090"
+\`\`\`
+
+---
+
+## 📌 2. Get All Jenkins Job Names
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/api/json?tree=jobs[name]"
+\`\`\`
+
+**Extract only names:**
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/api/json?tree=jobs[name]" | grep -oP '"name":"\\K[^"]+'
+\`\`\`
+
+---
+
+## 📌 3. Get Last Build Number
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/nextjs-cicd/lastBuild/api/json?tree=number"
+\`\`\`
+
+---
+
+## 📌 4. Get Git Commit ID
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/nextjs-cicd/lastBuild/api/json?tree=actions[lastBuiltRevision[SHA1]]"
+\`\`\`
+
+**Extract commit only:**
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/nextjs-cicd/lastBuild/api/json?tree=actions[lastBuiltRevision[SHA1]]" \
+| grep -oP '"SHA1":"\\K[^"]+'
+\`\`\`
+
+---
+
+## 📌 5. Get Build Status
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/nextjs-cicd/lastBuild/api/json?tree=result"
+\`\`\`
+
+---
+
+## 📌 6. ONE-LINE: Build No + Commit ID + Status
+\`\`\`bash
+curl -s -u "$USER:$TOKEN" \
+"$JENKINS_URL/job/nextjs-cicd/lastBuild/api/json?tree=number,result,actions[lastBuiltRevision[SHA1]]"
+\`\`\`
+
+---
+
+## 🔥 7. Get ALL JOBS + ALL BUILDS + COMMITS (Loop)
+\`\`\`bash
+for job in $(curl -s -u "$USER:$TOKEN" "$JENKINS_URL/api/json?tree=jobs[name]" \
+    | grep -oP '"name":"\\K[^"]+'); do
+
+    echo "=== JOB: $job ==="
+
+    RESP=$(curl -s -u "$USER:$TOKEN" \
+    "$JENKINS_URL/job/$job/lastBuild/api/json?tree=number,actions[lastBuiltRevision[SHA1]]")
+
+    BUILD=$(echo "$RESP" | grep -oP '"number":\\K[0-9]+')
+    COMMIT=$(echo "$RESP" | grep -oP '"SHA1":"\\K[^"]+' || echo "No Commit")
+
+    echo "Build Number: $BUILD"
+    echo "Commit ID: $COMMIT"
+    echo
+done
+\`\`\`
+
+---
+
+## 💡 Notes
+- Works with local Jenkins & Docker Jenkins
+- No CLI JAR needed
+- Pure Linux + API Token authentication`
+
     }
   }), []);
 
   const filteredDocs = useMemo(() => {
     if (!searchQuery) return documentation;
-    
     const filtered = {};
     Object.entries(documentation).forEach(([key, value]) => {
       if (
@@ -1919,210 +2023,77 @@ git push backup --tags
     return filtered;
   }, [searchQuery]);
 
+  // ==========================================
+  // MARKDOWN RENDERER
+  // ==========================================
   const renderMarkdown = (content) => {
     const lines = content.split('\n');
-    let inCodeBlock = false;
-    let codeBlockContent = [];
-    let codeLanguage = '';
+    let inCode = false;
+    let buffer = [];
 
-    return lines.map((line, i) => {
-      // Code blocks
+    return lines.map((line, idx) => {
       if (line.startsWith('```')) {
-        if (!inCodeBlock) {
-          inCodeBlock = true;
-          codeLanguage = line.slice(3);
-          codeBlockContent = [];
+        if (!inCode) {
+          inCode = true;
+          buffer = [];
           return null;
         } else {
-          inCodeBlock = false;
-          const code = codeBlockContent.join('\n');
-          codeBlockContent = [];
+          inCode = false;
           return (
-            <pre key={i} className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4">
-              <code className="text-sm font-mono">{code}</code>
+            <pre key={idx} className="bg-black text-green-300 p-4 rounded-lg overflow-x-auto my-4">
+              <code>{buffer.join('\n')}</code>
             </pre>
           );
         }
       }
 
-      if (inCodeBlock) {
-        codeBlockContent.push(line);
+      if (inCode) {
+        buffer.push(line);
         return null;
       }
 
-      // Headers
-      if (line.startsWith('# ')) {
-        return <h1 key={i} className="text-3xl font-bold mb-4 mt-8 text-gray-900">{line.slice(2)}</h1>;
-      }
-      if (line.startsWith('## ')) {
-        return <h2 key={i} className="text-2xl font-semibold mb-3 mt-6 text-gray-900">{line.slice(3)}</h2>;
-      }
-      if (line.startsWith('### ')) {
-        return <h3 key={i} className="text-xl font-semibold mb-2 mt-5 text-gray-800">{line.slice(4)}</h3>;
-      }
-      
-      // Bold text with inline code
-      if (line.includes('**') || line.includes('`')) {
-        const processedLine = [];
-        let remainingLine = line;
-        let key = 0;
+      if (line.startsWith('# ')) return <h1 key={idx} className="text-3xl font-bold mt-6 mb-3">{line.slice(2)}</h1>;
+      if (line.startsWith('## ')) return <h2 key={idx} className="text-2xl font-semibold mt-5 mb-3">{line.slice(3)}</h2>;
+      if (line.trim() === '') return <br key={idx} />;
 
-        while (remainingLine.length > 0) {
-          const boldIndex = remainingLine.indexOf('**');
-          const codeIndex = remainingLine.indexOf('`');
-
-          if (boldIndex === -1 && codeIndex === -1) {
-            processedLine.push(remainingLine);
-            break;
-          }
-
-          if (boldIndex !== -1 && (codeIndex === -1 || boldIndex < codeIndex)) {
-            if (boldIndex > 0) {
-              processedLine.push(remainingLine.slice(0, boldIndex));
-            }
-            const endBold = remainingLine.indexOf('**', boldIndex + 2);
-            if (endBold !== -1) {
-              processedLine.push(<strong key={key++}>{remainingLine.slice(boldIndex + 2, endBold)}</strong>);
-              remainingLine = remainingLine.slice(endBold + 2);
-            } else {
-              processedLine.push(remainingLine.slice(boldIndex + 2));
-              break;
-            }
-          } else if (codeIndex !== -1) {
-            if (codeIndex > 0) {
-              processedLine.push(remainingLine.slice(0, codeIndex));
-            }
-            const endCode = remainingLine.indexOf('`', codeIndex + 1);
-            if (endCode !== -1) {
-              processedLine.push(
-                <code key={key++} className="bg-gray-100 px-2 py-0.5 rounded text-sm font-mono text-purple-600">
-                  {remainingLine.slice(codeIndex + 1, endCode)}
-                </code>
-              );
-              remainingLine = remainingLine.slice(endCode + 1);
-            } else {
-              processedLine.push(remainingLine.slice(codeIndex + 1));
-              break;
-            }
-          }
-        }
-
-        return <p key={i} className="mb-2 text-gray-700 leading-relaxed">{processedLine}</p>;
-      }
-      
-      // List items
-      if (line.trim().startsWith('- ') || line.trim().startsWith('* ')) {
-        return <li key={i} className="ml-6 mb-1 text-gray-700 list-disc">{line.trim().slice(2)}</li>;
-      }
-      if (/^\d+\./.test(line.trim())) {
-        return <li key={i} className="ml-6 mb-1 text-gray-700 list-decimal">{line.trim().replace(/^\d+\.\s*/, '')}</li>;
-      }
-      
-      // Regular paragraph
-      if (line.trim()) {
-        return <p key={i} className="mb-2 text-gray-700 leading-relaxed">{line}</p>;
-      }
-      
-      return <br key={i} />;
+      return <p key={idx} className="text-gray-700 mb-2">{line}</p>;
     });
   };
 
+  // ==========================================
+  // MAIN UI
+  // ==========================================
   return (
     <div className="flex h-screen bg-gray-50">
+
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-72' : 'w-0'} bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden flex flex-col`}>
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Git Scenarios</h2>
-          <p className="text-sm text-gray-500 mt-1">Complete Reference Guide</p>
+      <aside className={`${sidebarOpen ? 'w-72' : 'w-0'} transition-all duration-300 bg-white border-r border-gray-200 overflow-hidden`}>
+        <div className="p-6 border-b">
+          <h1 className="text-xl font-bold">Documentation</h1>
         </div>
-        
-        <nav className="p-4 flex-1 overflow-y-auto">
-          {Object.entries(filteredDocs).map(([key, section]) => {
-            const Icon = section.icon;
+
+        <nav className="p-4 overflow-y-auto">
+          {Object.entries(filteredDocs).map(([key, value]) => {
+            const Icon = value.icon;
             return (
-              <button
+              <button 
                 key={key}
                 onClick={() => setActiveSection(key)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-colors ${
-                  activeSection === key
-                    ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg mb-2 
+                ${activeSection === key ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-700' : 'hover:bg-gray-100'}`}
               >
-                <Icon size={20} />
-                <span className="text-sm font-medium text-left">{section.title}</span>
-                {activeSection === key && <ChevronRight size={16} className="ml-auto" />}
+                <Icon size={20}/>
+                <span>{value.title}</span>
+                {activeSection === key && <ChevronRight className="ml-auto" size={16}/>}
               </button>
             );
           })}
         </nav>
-
-        <div className="p-4 border-t border-gray-200 text-xs text-gray-500">
-          <p>💡 Tip: Use Ctrl+F to search</p>
-        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Toggle sidebar"
-            >
-              {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-            
-            <div className="flex-1 max-w-2xl relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search Git scenarios, commands, or solutions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            <div className="hidden md:flex items-center gap-2 text-sm text-gray-600">
-              <GitBranch size={16} />
-              <span>Git Documentation</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-auto bg-gray-50">
-          <div className="max-w-5xl mx-auto px-8 py-10">
-            {documentation[activeSection] && (
-              <article className="bg-white rounded-lg shadow-sm p-8">
-                {renderMarkdown(documentation[activeSection].content)}
-              </article>
-            )}
-            
-            {Object.keys(filteredDocs).length === 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                <Search size={56} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-2xl font-semibold text-gray-700 mb-2">No results found</h3>
-                <p className="text-gray-500">Try searching for different keywords like &apos;merge&apos;, &apos;branch&apos;, &apos;conflict&apos;</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 px-6 py-4">
-          <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600">
-            <p>&copy; 2024 Git Scenarios Documentation. All scenarios tested and verified.</p>
-            <div className="flex gap-6">
-              <a href="https://git-scm.com/doc" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Official Git Docs</a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">GitHub</a>
-              <a href="#" className="hover:text-blue-600 transition-colors">Report Issue</a>
-            </div>
-          </div>
-        </footer>
+      <main className="flex-1 overflow-auto p-10">
+        {renderMarkdown(documentation[activeSection].content)}
       </main>
     </div>
   );
