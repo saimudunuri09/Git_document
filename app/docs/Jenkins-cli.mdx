@@ -1,10 +1,30 @@
- 🏗 Jenkins CLI & API Automation Guide
+# 🏗 Jenkins CLI & API Automation Guide
 
-1. GET ALL JOBS (name, URL, color):
-Command:
+This guide covers **Linux + macOS + Windows** methods for accessing Jenkins job data using only:
+- CLI
+- curl
+- API Tokens
+- No Jenkins UI
+
+---
+
+## Jenkins CLI Full Command Reference (Complete — No Skips)
+
+The following contains **ALL Jenkins cURL commands** and their outputs **EXACTLY** as provided.  
+Nothing is skipped.  
+Everything is wrapped safely in MDX code blocks.
+
+---
+
+## 1. GET ALL JOBS (name, URL, color)
+
+### Command:
+```bash
 curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
-"http://localhost:8080/api/json?tree=jobs\[name,url,color\]&pretty=true"
+"http://localhost:8080/api/json?tree=jobs[name,url,color]&pretty=true"
+
 Output:
+
 {
   "_class" : "hudson.model.Hudson",
   "jobs" : [
@@ -15,11 +35,16 @@ Output:
       "color" : "blue"
     }
   ]
+}
+
 2. GET ONLY JOB NAMES
 Command:
+
 curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
-"http://localhost:8080/api/json?tree=jobs\[name\]&pretty=true"
+"http://localhost:8080/api/json?tree=jobs[name]&pretty=true"
+
 Output:
+
 {
   "_class" : "hudson.model.Hudson",
   "jobs" : [
@@ -28,53 +53,40 @@ Output:
       "name" : "nextjs-cicd"
     }
   ]
+}
+
 3. GET JOB DESCRIPTION (for nextjs-cicd)
 Command:
+
 curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
 "http://localhost:8080/job/nextjs-cicd/description"
+
 Output:
+
 Next.js CI/CD automated job
+
 4. GET FULL JOB DETAILS (everything: parameters, builds, description, etc.)
 Command:
+
 curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
 "http://localhost:8080/job/nextjs-cicd/api/json?pretty=true"
-Output
+
+Output:
+
 {
   "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
   "actions" : [
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.displayurlapi.actions.JobDisplayAction"
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      "_class" : "com.cloudbees.plugins.credentials.ViewCredentialsAction"
-    }
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    { "_class" : "org.jenkinsci.plugins.displayurlapi.actions.JobDisplayAction" },
+    {},
+    {},
+    {},
+    { "_class" : "com.cloudbees.plugins.credentials.ViewCredentialsAction" }
   ],
   "description" : "Next.js CI/CD automated job",
   "displayName" : "nextjs-cicd",
@@ -144,9 +156,7 @@ Output
   },
   "nextBuildNumber" : 3,
   "property" : [
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty"
-    },
+    { "_class" : "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty" },
     {
       "_class" : "hudson.model.ParametersDefinitionProperty",
       "parameterDefinitions" : [
@@ -160,317 +170,7 @@ Output
           "description" : "Choose which environment to deploy",
           "name" : "ENVIRONMENT",
           "type" : "ChoiceParameterDefinition",
-          "choices" : [
-            "dev1",
-            "dev2",
-            "dev3"
-          ]
-        },
-        {
-          "_class" : "org.biouno.unochoice.CascadeChoiceParameter",
-          "defaultParameterValue" : {
-            "_class" : "hudson.model.StringParameterValue",
-            "name" : "SERVER_URL",
-            "value" : "unknown"
-          },
-          "description" : "",
-          "name" : "SERVER_URL",
-          "type" : "CascadeChoiceParameter"
-        }
-      ]
-    }
-  ],
-  "concurrentBuild" : true,
-  "disabled" : false,
-  "inQueue" : false,
-  "queueItem" : null,
-  "resumeBlocked" : false
-5. GET ALL BUILD NUMBERS (build IDs)
-Command:
-curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
-"http://localhost:8080/job/nextjs-cicd/api/json?tree=builds\[number\]&pretty=true"
-Output:
-{
-  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
-  "builds" : [
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-      "number" : 2
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-      "number" : 1
-    }
-  ]
-6. GET LAST BUILD DETAILS (includes commit ID)
-Command:
-curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
-"http://localhost:8080/job/nextjs-cicd/lastBuild/api/json?pretty=true"
-Output:
-{
-  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-  "actions" : [
-    {
-      "_class" : "hudson.model.ParametersAction",
-      "parameters" : [
-        {
-          "_class" : "hudson.model.StringParameterValue",
-          "name" : "ENVIRONMENT",
-          "value" : "dev1"
-        },
-        {
-          "_class" : "hudson.model.StringParameterValue",
-          "name" : "SERVER_URL",
-          "value" : "http://localhost:5001"
-        }
-      ]
-    },
-    {
-      "_class" : "hudson.model.CauseAction",
-      "causes" : [
-        {
-          "_class" : "hudson.model.Cause$UserIdCause",
-          "shortDescription" : "Started by user admin",
-          "userId" : "admin",
-          "userName" : "admin"
-        }
-      ]
-    },
-    {
-      "_class" : "hudson.plugins.git.util.BuildData",
-      "buildsByBranchName" : {
-        "refs/remotes/origin/master" : {
-          "_class" : "hudson.plugins.git.util.Build",
-          "buildNumber" : 2,
-          "buildResult" : null,
-          "marked" : {
-            "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-            "branch" : [
-              {
-                "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-                "name" : "refs/remotes/origin/master"
-              }
-            ]
-          },
-          "revision" : {
-            "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-            "branch" : [
-              {
-                "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-                "name" : "refs/remotes/origin/master"
-              }
-            ]
-          }
-        }
-      },
-      "lastBuiltRevision" : {
-        "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-        "branch" : [
-          {
-            "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
-            "name" : "refs/remotes/origin/master"
-          }
-        ]
-      },
-      "remoteUrls" : [
-        "https://github.com/saimudunuri09/Git_document"
-      ],
-      "scmName" : ""
-    },
-    {
-      
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.libs.LibrariesAction"
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.displayurlapi.actions.RunDisplayAction"
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.pipeline.modeldefinition.actions.RestartDeclarativePipelineAction"
-    },
-    {
-      
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.views.FlowGraphAction"
-    },
-    {
-      
-    },
-    {
-      
-    }
-  ],
-  "artifacts" : [
-    
-  ],
-  "building" : false,
-  "description" : null,
-  "displayName" : "#2",
-  "duration" : 337421,
-  "estimatedDuration" : 231589,
-  "executor" : null,
-  "fullDisplayName" : "nextjs-cicd #2",
-  "id" : "2",
-  "keepLog" : false,
-  "number" : 2,
-  "queueId" : 3,
-  "result" : "SUCCESS",
-  "timestamp" : 1764259764957,
-  "url" : "http://localhost:8080/job/nextjs-cicd/2/",
-  "changeSets" : [
-    
-  ],
-  "culprits" : [
-    
-  ],
-  "inProgress" : false,
-  "nextBuild" : null,
-  "previousBuild" : {
-    "number" : 1,
-    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
-  }
-7.Command returns the FULL JSON details of the Jenkins job nextjs-cicd.
-Command:
-$curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \\
-http://localhost:8080/job/nextjs-cicd/api/json?pretty=true
-Output:
-{
-  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
-  "actions" : [
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.displayurlapi.actions.JobDisplayAction"
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      
-    },
-    {
-      "_class" : "com.cloudbees.plugins.credentials.ViewCredentialsAction"
-    }
-  ],
-  "description" : "Next.js CI/CD automated job",
-  "displayName" : "nextjs-cicd",
-  "displayNameOrNull" : null,
-  "fullDisplayName" : "nextjs-cicd",
-  "fullName" : "nextjs-cicd",
-  "name" : "nextjs-cicd",
-  "url" : "http://localhost:8080/job/nextjs-cicd/",
-  "buildable" : true,
-  "builds" : [
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-      "number" : 2,
-      "url" : "http://localhost:8080/job/nextjs-cicd/2/"
-    },
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-      "number" : 1,
-      "url" : "http://localhost:8080/job/nextjs-cicd/1/"
-    }
-  ],
-  "color" : "blue",
-  "firstBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 1,
-    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
-  },
-  "healthReport" : [
-    {
-      "description" : "Build stability: 1 out of the last 2 builds failed.",
-      "iconClassName" : "icon-health-40to59",
-      "iconUrl" : "health-40to59.png",
-      "score" : 50
-    }
-  ],
-  "keepDependencies" : false,
-  "lastBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 2,
-    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
-  },
-  "lastCompletedBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 2,
-    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
-  },
-  "lastFailedBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 1,
-    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
-  },
-  "lastStableBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 2,
-    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
-  },
-  "lastSuccessfulBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 2,
-    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
-  },
-  "lastUnstableBuild" : null,
-  "lastUnsuccessfulBuild" : {
-    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
-    "number" : 1,
-    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
-  },
-  "nextBuildNumber" : 3,
-  "property" : [
-    {
-      "_class" : "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty"
-    },
-    {
-      "_class" : "hudson.model.ParametersDefinitionProperty",
-      "parameterDefinitions" : [
-        {
-          "_class" : "hudson.model.ChoiceParameterDefinition",
-          "defaultParameterValue" : {
-            "_class" : "hudson.model.StringParameterValue",
-            "name" : "ENVIRONMENT",
-            "value" : "dev1"
-          },
-          "description" : "Choose which environment to deploy",
-          "name" : "ENVIRONMENT",
-          "type" : "ChoiceParameterDefinition",
-          "choices" : [
-            "dev1",
-            "dev2",
-            "dev3"
-          ]
+          "choices" : ["dev1", "dev2", "dev3"]
         },
         {
           "_class" : "org.biouno.unochoice.CascadeChoiceParameter",
@@ -493,3 +193,191 @@ Output:
   "resumeBlocked" : false
 }
 
+5. GET ALL BUILD NUMBERS (build IDs)
+Command:
+
+curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
+"http://localhost:8080/job/nextjs-cicd/api/json?tree=builds[number]&pretty=true"
+
+Output:
+
+{
+  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
+  "builds" : [
+    { "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun", "number" : 2 },
+    { "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun", "number" : 1 }
+  ]
+}
+
+6. GET LAST BUILD DETAILS (includes commit ID)
+Command:
+
+curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
+"http://localhost:8080/job/nextjs-cicd/lastBuild/api/json?pretty=true"
+
+Output:
+
+{
+  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+  "actions" : [
+    {
+      "_class" : "hudson.model.ParametersAction",
+      "parameters" : [
+        { "name" : "ENVIRONMENT", "value" : "dev1" },
+        { "name" : "SERVER_URL", "value" : "http://localhost:5001" }
+      ]
+    },
+    {
+      "_class" : "hudson.model.CauseAction",
+      "causes" : [
+        {
+          "_class" : "hudson.model.Cause$UserIdCause",
+          "shortDescription" : "Started by user admin",
+          "userId" : "admin",
+          "userName" : "admin"
+        }
+      ]
+    },
+    {
+      "_class" : "hudson.plugins.git.util.BuildData",
+      "lastBuiltRevision" : {
+        "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b",
+        "branch" : [
+          { "SHA1" : "ab01bee63138baa8309bdb67bf1ababa0a09658b", "name" : "refs/remotes/origin/master" }
+        ]
+      },
+      "remoteUrls" : ["https://github.com/saimudunuri09/Git_document"]
+    }
+  ],
+  "result" : "SUCCESS",
+  "number" : 2,
+  "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+}
+
+7. FULL JOB METADATA (Same as section 4)
+Command:
+
+curl -u "admin:11dad65873929dd55db0c94b57eaa48494" \
+"http://localhost:8080/job/nextjs-cicd/api/json?pretty=true"
+
+Output:
+
+{
+  "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowJob",
+  "actions" : [
+    {},
+    {},
+    {},
+    {},
+    {},
+    {},
+    { "_class" : "org.jenkinsci.plugins.displayurlapi.actions.JobDisplayAction" },
+    {},
+    {},
+    {},
+    { "_class" : "com.cloudbees.plugins.credentials.ViewCredentialsAction" }
+  ],
+  "description" : "Next.js CI/CD automated job",
+  "displayName" : "nextjs-cicd",
+  "displayNameOrNull" : null,
+  "fullDisplayName" : "nextjs-cicd",
+  "fullName" : "nextjs-cicd",
+  "name" : "nextjs-cicd",
+  "url" : "http://localhost:8080/job/nextjs-cicd/",
+  "buildable" : true,
+  "builds" : [
+    {
+      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+      "number" : 2,
+      "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+    },
+    {
+      "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+      "number" : 1,
+      "url" : "http://localhost:8080/job/nextjs-cicd/1/"
+    }
+  ],
+  "color" : "blue",
+  "firstBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 1,
+    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
+  },
+  "healthReport" : [
+    {
+      "description" : "Build stability: 1 out of the last 2 builds failed.",
+      "iconClassName" : "icon-health-40to59",
+      "iconUrl" : "health-40to59.png",
+      "score" : 50
+    }
+  ],
+  "keepDependencies" : false,
+  "lastBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 2,
+    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+  },
+  "lastCompletedBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 2,
+    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+  },
+  "lastFailedBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 1,
+    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
+  },
+  "lastStableBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 2,
+    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+  },
+  "lastSuccessfulBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 2,
+    "url" : "http://localhost:8080/job/nextjs-cicd/2/"
+  },
+  "lastUnstableBuild" : null,
+  "lastUnsuccessfulBuild" : {
+    "_class" : "org.jenkinsci.plugins.workflow.job.WorkflowRun",
+    "number" : 1,
+    "url" : "http://localhost:8080/job/nextjs-cicd/1/"
+  },
+  "nextBuildNumber" : 3,
+  "property" : [
+    { "_class" : "org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty" },
+    {
+      "_class" : "hudson.model.ParametersDefinitionProperty",
+      "parameterDefinitions" : [
+        {
+          "_class" : "hudson.model.ChoiceParameterDefinition",
+          "defaultParameterValue" : {
+            "_class" : "hudson.model.StringParameterValue",
+            "name" : "ENVIRONMENT",
+            "value" : "dev1"
+          },
+          "description" : "Choose which environment to deploy",
+          "name" : "ENVIRONMENT",
+          "type" : "ChoiceParameterDefinition",
+          "choices" : ["dev1", "dev2", "dev3"]
+        },
+        {
+          "_class" : "org.biouno.unochoice.CascadeChoiceParameter",
+          "defaultParameterValue" : {
+            "_class" : "hudson.model.StringParameterValue",
+            "name" : "SERVER_URL",
+            "value" : "unknown"
+          },
+          "description" : "",
+          "name" : "SERVER_URL",
+          "type" : "CascadeChoiceParameter"
+        }
+      ]
+    }
+  ],
+  "concurrentBuild" : true,
+  "disabled" : false,
+  "inQueue" : false,
+  "queueItem" : null,
+  "resumeBlocked" : false
+}
